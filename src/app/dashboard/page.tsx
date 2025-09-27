@@ -8,130 +8,11 @@ import type { FuelRecord, MaintenanceRecord } from "../types";
 const FUEL_KEY = "fuel-tracker:fuel-records";
 const MAINTENANCE_KEY = "fuel-tracker:maintenance-records";
 
-interface ChartPoint {
-  id: string;
-  label: string;
-  details: string;
-  value: number;
-}
-
-const formatNumber = (value: number, fractionDigits = 2) =>
-  value.toLocaleString(undefined, {
-    minimumFractionDigits: fractionDigits,
-    maximumFractionDigits: fractionDigits,
-  });
-
-function FuelEfficiencyChart({ points }: { points: ChartPoint[] }) {
-  if (points.length === 0) {
-    return (
-      <p className="text-sm text-neutral-500">
-        Log at least two refuels to unlock the efficiency chart.
-      </p>
-    );
-  }
-
-  const width = 640;
-  const height = 280;
-  const padding = 40;
-  const innerWidth = width - padding * 2;
-  const innerHeight = height - padding * 2;
-  const maxValue = points.reduce(
-    (max, point) => (point.value > max ? point.value : max),
-    0,
-  );
-  const yMax = maxValue > 0 ? maxValue : 1;
-  const coordinates = points.map((point, index) => {
-    const ratio = points.length === 1 ? 0 : index / (points.length - 1);
-    const x = padding + ratio * innerWidth;
-    const y = padding + (1 - point.value / yMax) * innerHeight;
-    return { ...point, x, y };
-  });
-  const polylinePoints = coordinates
-    .map(
-      (coordinate) => `${coordinate.x.toFixed(2)},${coordinate.y.toFixed(2)}`,
-    )
-    .join(" ");
-
-  const ticks = [] as Array<{ value: number; y: number }>;
-  const tickCount = 4;
-  for (let index = 0; index <= tickCount; index += 1) {
-    const value = (yMax / tickCount) * index;
-    const y = padding + (1 - value / yMax) * innerHeight;
-    ticks.push({ value, y });
-  }
-
-  return (
-    <div className="space-y-4">
-      <svg
-        role="img"
-        viewBox={`0 0 ${width} ${height}`}
-        className="h-auto w-full"
-      >
-        <title>Fuel consumption per 100 km</title>
-        <desc>
-          Each point represents litres used for every 100 km between consecutive
-          refuels.
-        </desc>
-        <rect
-          x={padding}
-          y={padding}
-          width={innerWidth}
-          height={innerHeight}
-          fill="#f8fafc"
-          stroke="#e2e8f0"
-          strokeWidth={1}
-          rx={12}
-        />
-        {ticks.map((tick) => (
-          <g key={tick.value}>
-            <line
-              x1={padding}
-              x2={padding + innerWidth}
-              y1={tick.y}
-              y2={tick.y}
-              stroke="#e2e8f0"
-              strokeDasharray="4 8"
-            />
-            <text
-              x={padding - 12}
-              y={tick.y}
-              textAnchor="end"
-              dominantBaseline="middle"
-              fontSize="10"
-              fill="#64748b"
-            >
-              {formatNumber(tick.value, 1)}
-            </text>
-          </g>
-        ))}
-        <polyline
-          points={polylinePoints}
-          fill="none"
-          stroke="#1d4ed8"
-          strokeWidth={3}
-          strokeLinejoin="round"
-          strokeLinecap="round"
-        />
-        {coordinates.map((coordinate) => (
-          <g key={coordinate.id}>
-            <circle cx={coordinate.x} cy={coordinate.y} r={5} fill="#1d4ed8" />
-          </g>
-        ))}
-        <text
-          x={width / 2}
-          y={height - padding / 2}
-          textAnchor="middle"
-          fontSize="11"
-          fill="#475569"
-        >
-          Litres per 100 km
-        </text>
-      </svg>
-    </div>
-  );
-}
-
 export default function DashboardPage() {
+  return <DashboardView />;
+}
+
+export function DashboardView() {
   const [fuelRecords] = useLocalStorage<FuelRecord[]>(FUEL_KEY, []);
   const [maintenanceRecords] = useLocalStorage<MaintenanceRecord[]>(
     MAINTENANCE_KEY,
@@ -381,5 +262,128 @@ export default function DashboardPage() {
         )}
       </Card>
     </main>
+  );
+}
+
+interface ChartPoint {
+  id: string;
+  label: string;
+  details: string;
+  value: number;
+}
+
+const formatNumber = (value: number, fractionDigits = 2) =>
+  value.toLocaleString(undefined, {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
+  });
+
+function FuelEfficiencyChart({ points }: { points: ChartPoint[] }) {
+  if (points.length === 0) {
+    return (
+      <p className="text-sm text-neutral-500">
+        Log at least two refuels to unlock the efficiency chart.
+      </p>
+    );
+  }
+
+  const width = 640;
+  const height = 280;
+  const padding = 40;
+  const innerWidth = width - padding * 2;
+  const innerHeight = height - padding * 2;
+  const maxValue = points.reduce(
+    (max, point) => (point.value > max ? point.value : max),
+    0,
+  );
+  const yMax = maxValue > 0 ? maxValue : 1;
+  const coordinates = points.map((point, index) => {
+    const ratio = points.length === 1 ? 0 : index / (points.length - 1);
+    const x = padding + ratio * innerWidth;
+    const y = padding + (1 - point.value / yMax) * innerHeight;
+    return { ...point, x, y };
+  });
+  const polylinePoints = coordinates
+    .map(
+      (coordinate) => `${coordinate.x.toFixed(2)},${coordinate.y.toFixed(2)}`,
+    )
+    .join(" ");
+
+  const ticks = [] as Array<{ value: number; y: number }>;
+  const tickCount = 4;
+  for (let index = 0; index <= tickCount; index += 1) {
+    const value = (yMax / tickCount) * index;
+    const y = padding + (1 - value / yMax) * innerHeight;
+    ticks.push({ value, y });
+  }
+
+  return (
+    <div className="space-y-4">
+      <svg
+        role="img"
+        viewBox={`0 0 ${width} ${height}`}
+        className="h-auto w-full"
+      >
+        <title>Fuel consumption per 100 km</title>
+        <desc>
+          Each point represents litres used for every 100 km between consecutive
+          refuels.
+        </desc>
+        <rect
+          x={padding}
+          y={padding}
+          width={innerWidth}
+          height={innerHeight}
+          fill="#f8fafc"
+          stroke="#e2e8f0"
+          strokeWidth={1}
+          rx={12}
+        />
+        {ticks.map((tick) => (
+          <g key={tick.value}>
+            <line
+              x1={padding}
+              x2={padding + innerWidth}
+              y1={tick.y}
+              y2={tick.y}
+              stroke="#e2e8f0"
+              strokeDasharray="4 8"
+            />
+            <text
+              x={padding - 12}
+              y={tick.y}
+              textAnchor="end"
+              dominantBaseline="middle"
+              fontSize="10"
+              fill="#64748b"
+            >
+              {formatNumber(tick.value, 1)}
+            </text>
+          </g>
+        ))}
+        <polyline
+          points={polylinePoints}
+          fill="none"
+          stroke="#1d4ed8"
+          strokeWidth={3}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+        {coordinates.map((coordinate) => (
+          <g key={coordinate.id}>
+            <circle cx={coordinate.x} cy={coordinate.y} r={5} fill="#1d4ed8" />
+          </g>
+        ))}
+        <text
+          x={width / 2}
+          y={height - padding / 2}
+          textAnchor="middle"
+          fontSize="11"
+          fill="#475569"
+        >
+          Litres per 100 km
+        </text>
+      </svg>
+    </div>
   );
 }

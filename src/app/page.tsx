@@ -1,7 +1,7 @@
 "use client";
 
-import DashboardPage from "./dashboard/page";
+import { DashboardView } from "./dashboard/page";
 
-export default function Home() {
-  return <DashboardPage />;
+export default function HomeRoute() {
+  return <DashboardView />;
 }

@@ -1,7 +1,38 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import type { ReactNode } from "react";
 import "./globals.css";
 import { NavBar } from "./components/NavBar";
+
+const SITE_NAME = "Fuel Tracker";
+const SITE_DESCRIPTION =
+  "Track fuel usage and maintenance locally in your browser.";
+const OG_IMAGE_PATH = "/og-image.png";
+
+export const metadata: Metadata = {
+  title: {
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: OG_IMAGE_PATH,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: [OG_IMAGE_PATH],
+  },
+};
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,15 +44,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Fuel Tracker",
-  description: "Track fuel usage and maintenance locally in your browser.",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   const bodyClasses = [
     geistSans.variable,

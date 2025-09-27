@@ -8,7 +8,7 @@ import type { MaintenanceRecord } from "../types";
 
 const STORAGE_KEY = "fuel-tracker:maintenance-records";
 
-export default function MaintenancePlannerPage() {
+export default function MaintenancePage() {
   const [records, setRecords] = useLocalStorage<MaintenanceRecord[]>(
     STORAGE_KEY,
     [],
